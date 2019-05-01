@@ -1,0 +1,12 @@
+﻿C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\VC\VCTargets\Microsoft.CppBuild.targets(391,5): warning MSB8028: The intermediate directory (x64\Debug\) contains files shared from another project (OpenGL Test.vcxproj).  This can lead to incorrect clean and rebuild behavior.
+  Source.cpp
+c:\users\scurr\source\repos\opengl_test\opengl test\source.cpp(11): error C2628: 'Shader' followed by 'char' is illegal (did you forget a ';'?)
+c:\users\scurr\source\repos\opengl_test\opengl test\source.cpp(20): error C2440: 'initializing': cannot convert from 'const char [171]' to 'const Shader *'
+  c:\users\scurr\source\repos\opengl_test\opengl test\source.cpp(20): note: Types pointed to are unrelated; conversion requires reinterpret_cast, C-style cast or function-style cast
+c:\users\scurr\source\repos\opengl_test\opengl test\source.cpp(124): error C2664: 'void (GLuint,GLsizei,const GLchar *const *,const GLint *)': cannot convert argument 3 from 'const Shader **' to 'const GLchar *const *'
+  c:\users\scurr\source\repos\opengl_test\opengl test\source.cpp(124): note: Types pointed to are unrelated; conversion requires reinterpret_cast, C-style cast or function-style cast
+c:\users\scurr\source\repos\opengl_test\opengl test\source.cpp(218): warning C4305: '=': truncation from 'double' to 'float'
+c:\users\scurr\source\repos\opengl_test\opengl test\source.cpp(220): warning C4305: '=': truncation from 'double' to 'float'
+c:\users\scurr\source\repos\opengl_test\opengl test\source.cpp(223): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\scurr\source\repos\opengl_test\opengl test\source.cpp(224): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\scurr\source\repos\opengl_test\opengl test\source.cpp(225): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data

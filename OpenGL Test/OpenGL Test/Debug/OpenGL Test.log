@@ -1,0 +1,5 @@
+﻿  Source.cpp
+c:\users\scurr\source\repos\opengl test\opengl test\source.cpp(208): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\scurr\source\repos\opengl test\opengl test\source.cpp(209): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\scurr\source\repos\opengl test\opengl test\source.cpp(210): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+  OpenGL Test.vcxproj -> C:\Users\scurr\source\repos\OpenGL Test\Debug\OpenGL Test.exe
