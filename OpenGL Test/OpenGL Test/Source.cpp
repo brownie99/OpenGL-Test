@@ -1,8 +1,8 @@
 #define _USE_MATH_DEFINES
 #define STB_IMAGE_IMPLEMENTATION
 #include <iostream>
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include <include/glad/glad.h>
+#include <glfw-3.3.bin.WIN32/include/GLFW/glfw3.h>
 #include <stb_image.h>
 #include <cstdlib>
 #include <math.h>

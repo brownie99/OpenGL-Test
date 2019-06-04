@@ -71,7 +71,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>D:\GLAD\include;D:\glfw-3.2.1.bin.WIN32\include;D:\glfw-3.2.1.bin.WIN32\lib-vc2015;$(IncludePath);$(ProjectDir)</IncludePath>
+    <IncludePath>$(ProjectDir)\glfw-3.3.bin.WIN32\include;$(IncludePath);$(ProjectDir);$(ProjectDir)/include;$(ProjectDir)\glfw-3.3.bin.WIN32\lib-vc2017;G:\GitHub\OpenGL-Test\OpenGL Test\OpenGL Test\include\glad</IncludePath>
+    <LibraryPath>$(ProjectDir)\glfw-3.3.bin.WIN32\lib-vc2017;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>D:\GLAD\include;$(ProjectDir);D:\glfw-3.2.1.bin.WIN32\include\GLFW;D:\GLAD\include\glad;D:\glfw-3.2.1.bin.WIN32\lib-vc2015;$(IncludePath)</IncludePath>
