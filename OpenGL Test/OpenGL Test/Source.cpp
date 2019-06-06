@@ -13,6 +13,9 @@
 #include <Shader.h>
 
 float mixer = 0.5f;
+float xScale = 1.0f;
+glm::mat4 trans = glm::mat4(1.0f);
+
 
 int main()
 {
@@ -104,6 +107,9 @@ int main()
 	Shader ourShader("vShader.vs", "fShader.fs");
 
 	
+	
+
+
 
 	unsigned int texture;
 	glGenTextures(1, &texture);
@@ -227,6 +233,14 @@ int main()
 		glUniform1i(glGetUniformLocation(ourShader.ID, "texture2"), 1);
 		glUniform1f(glGetUniformLocation(ourShader.ID, "mixer"), mixer);
 		
+		glm::mat4 trans = glm::mat4(1.0f);
+		trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0, 0.0, 1.0));
+		trans = glm::translate(trans, glm::vec3(-0.5f, -0.5f, 0.0f));
+		trans = glm::scale(trans, glm::vec3(xScale, 1.0, 1.0));
+		
+		unsigned int transformLoc = glGetUniformLocation(ourShader.ID, "transform");
+		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
+
 		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 		//glDrawElements(GL_TRIANGLES, 24, GL_UNSIGNED_INT, 0);
 		
@@ -260,18 +274,6 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 void processInput(GLFWwindow *window)
 {
-	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_KEY_DOWN)
-		glfwSetWindowShouldClose(window, true);
-
-	/*if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-	{
-		mixer = mixer + 0.1;
-	}
-
-	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-	{
-		mixer = mixer - 0.1;
-	}*/
 }
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -279,15 +281,29 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	std::cout << "input" << std::endl;
 	if (key == GLFW_KEY_UP && action == GLFW_PRESS)
 	{
-		mixer = mixer + 0.1f;
-		std::cout << mixer << std::endl;
+		//mixer = mixer + 0.1f;
+		std::cout << "" << std::endl;
 	}
 
 	if (key == GLFW_KEY_DOWN && action == GLFW_PRESS)
 	{
-		mixer = mixer - 0.1f;
-		std::cout << mixer << std::endl;
+		//mixer = mixer - 0.1f;
+		std::cout << "" << std::endl;
 
+	}
+
+	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+		glfwSetWindowShouldClose(window, true);
+
+	if (key == GLFW_KEY_UP && action == GLFW_PRESS)
+	{
+		std::cout << "scale up" << std::endl;
+		xScale = xScale * 2.0f;
+	}
+
+	if (key == GLFW_KEY_DOWN && action == GLFW_PRESS)
+	{
+		xScale = xScale * 0.5f;
 	}
 }
 
