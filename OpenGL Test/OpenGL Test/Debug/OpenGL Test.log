@@ -1,5 +1,8 @@
-﻿  Source.cpp
-c:\users\scurr\documents\github\opengl-test\opengl test\opengl test\source.cpp(217): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-c:\users\scurr\documents\github\opengl-test\opengl test\opengl test\source.cpp(218): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-c:\users\scurr\documents\github\opengl-test\opengl test\opengl test\source.cpp(219): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-  OpenGL Test.vcxproj -> C:\Users\scurr\Documents\GitHub\OpenGL-Test\OpenGL Test\Debug\OpenGL Test.exe
+﻿  glad.c
+g:\windows kits\10\include\10.0.17763.0\shared\minwindef.h(130): warning C4005: 'APIENTRY': macro redefinition
+  g:\github\opengl-test\opengl test\opengl test\include\glad\glad.h(32): note: see previous definition of 'APIENTRY'
+  Source.cpp
+g:\github\opengl-test\opengl test\opengl test\source.cpp(217): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+g:\github\opengl-test\opengl test\opengl test\source.cpp(218): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+g:\github\opengl-test\opengl test\opengl test\source.cpp(219): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+  OpenGL Test.vcxproj -> G:\GitHub\OpenGL-Test\OpenGL Test\Debug\OpenGL Test.exe
