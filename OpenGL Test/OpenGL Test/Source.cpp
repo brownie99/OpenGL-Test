@@ -199,7 +199,7 @@ int main()
 
 	
 	glm::ortho(0.0f, 800.0f, 0.0f, 600.0f, 0.1f, 100.0f);
-
+	glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
 
 	void processInput(GLFWwindow *window);
 	
@@ -234,10 +234,10 @@ int main()
 		glUniform1i(glGetUniformLocation(ourShader.ID, "texture2"), 1);
 		glUniform1f(glGetUniformLocation(ourShader.ID, "mixer"), mixer);
 		
-		glm::mat4 trans = glm::mat4(1.0f);
+		/*glm::mat4 trans = glm::mat4(1.0f);
 		trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0, 0.0, 1.0));
 		trans = glm::translate(trans, glm::vec3(-0.5f, -0.5f, 0.0f));
-		trans = glm::scale(trans, glm::vec3(xScale, 1.0, 1.0));
+		trans = glm::scale(trans, glm::vec3(xScale, 1.0, 1.0));*/
 		
 		unsigned int transformLoc = glGetUniformLocation(ourShader.ID, "transform");
 		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
