@@ -3,7 +3,7 @@ out vec4 FragColor;
 uniform sampler2D texture1;
 uniform sampler2D texture2;
 uniform float mixer;
-in vec3 uColor;
+//in vec3 uColor;
 in vec2 TexCoord;
 void main()
 {
