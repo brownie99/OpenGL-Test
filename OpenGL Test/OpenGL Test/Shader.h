@@ -40,6 +40,7 @@ public:
 			vertexCode = vShaderStream.str();
 			fragmentCode = fShaderStream.str();
 			std::cout << vertexCode;
+			std::cout << fragmentCode;
 		}
 		catch (std::ifstream::failure e)
 		{
@@ -117,6 +118,11 @@ public:
 	void setFloat4f(const std::string &name, float value1, float value2, float value3, float value4) const
 	{
 		glUniform4f(glGetUniformLocation(ID, name.c_str()), value1, value2, value3, value4);
+	}
+
+	void setVec3(const std::string &name, float value1, float value2, float value3) const
+	{
+		glUniform3f(glGetUniformLocation(ID, name.c_str()), value1, value2, value3);
 	}
 };
 #endif

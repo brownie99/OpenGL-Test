@@ -133,6 +133,7 @@ int main()
 
 	std::cout << "Making Shader" << std::endl;
 	Shader ourShader("vShader.vs", "fShader.fs");
+	Shader lightingShader("vShader.vs", "lightingShader.fs");
 
 	
 	
@@ -186,18 +187,10 @@ int main()
 
 	stbi_image_free(data2);
 
-	//unsigned int EBO;
-	//glGenBuffers(1, &EBO);
 
-	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-	unsigned int VBOs[1], VAOs[1];
+	unsigned int VBOs[2], VAOs[1];
 	glGenVertexArrays(1, VAOs);
 	glGenBuffers(1, VBOs);
-	//glBindBuffer(GL_ARRAY_BUFFER, VBOs[0]);
-	//glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
 
 	glBindVertexArray(VAOs[0]);
 
@@ -209,7 +202,14 @@ int main()
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
 
-
+	unsigned int lightVAO;
+	glGenVertexArrays(1, &lightVAO);
+	glBindVertexArray(lightVAO);
+	// we only need to bind to the VBO, the container's VBO's data already contains the correct data.
+	glBindBuffer(GL_ARRAY_BUFFER, VBOs[1]);
+	// set the vertex attributes (only position data for our lamp)
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
 
 	glEnable(GL_DEPTH_TEST);
 
@@ -232,10 +232,13 @@ int main()
 		glBindTexture(GL_TEXTURE_2D, texture);
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, texture2);
-		ourShader.use();
+		//ourShader.use();
+		lightingShader.use();
 		glUniform1i(glGetUniformLocation(ourShader.ID, "texture1"), 0);
 		glUniform1i(glGetUniformLocation(ourShader.ID, "texture2"), 1);
 		glUniform1f(glGetUniformLocation(ourShader.ID, "mixer"), mixer);
+		lightingShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
+		lightingShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
 		
 
 		glm::mat4 model = glm::mat4(1.0f);
@@ -245,27 +248,33 @@ int main()
 		glm::mat4 view;
 		view = camera.GetViewMatrix();
 		projection = glm::perspective(glm::radians(camera.Zoom), (float)width / (float)height, 0.1f, 100.0f);
-		int modelLoc = glGetUniformLocation(ourShader.ID, "model");
+		int modelLoc = glGetUniformLocation(lightingShader.ID, "model");
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		int viewLoc = glGetUniformLocation(ourShader.ID, "view");
+		int viewLoc = glGetUniformLocation(lightingShader.ID, "view");
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-		int projectionLoc = glGetUniformLocation(ourShader.ID, "projection");
+		int projectionLoc = glGetUniformLocation(lightingShader.ID, "projection");
 		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 		
 		
-		glBindVertexArray(VAOs[3]);
-		for (unsigned int i = 0; i < 10; i++)
+		glBindVertexArray(VAOs[0]);
+		for (unsigned int i = 0; i < 1; i++)
 		{
 			glm::mat4 model = glm::mat4(1.0f);
 			model = glm::translate(model, cubePositions[i]);
 			
 			float angle = 20.0f * i;
 			model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-			model = glm::rotate(model, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
+			//model = glm::rotate(model, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
 			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
+		glBindVertexArray(lightVAO);
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, cubePositions[2]);
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -285,15 +294,22 @@ void processInput(GLFWwindow *window)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
-	float cameraSpeed = 2.8f * deltaTime;
+	float multiplier = 1.0f;
+	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+		multiplier *= 2;
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		camera.ProcessKeyboard(FORWARD, deltaTime);
+		camera.ProcessKeyboard(FORWARD, deltaTime, multiplier);
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		camera.ProcessKeyboard(BACKWARD, deltaTime);
+		camera.ProcessKeyboard(BACKWARD, deltaTime, multiplier);
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		camera.ProcessKeyboard(LEFT, deltaTime);
+		camera.ProcessKeyboard(LEFT, deltaTime, multiplier);
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		camera.ProcessKeyboard(RIGHT, deltaTime);
+		camera.ProcessKeyboard(RIGHT, deltaTime, multiplier);
+	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+		camera.ProcessKeyboard(UP, deltaTime, multiplier);
+	if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+		camera.ProcessKeyboard(DOWN, deltaTime, multiplier);
+	
 }
 
 bool firstMouse = true;
