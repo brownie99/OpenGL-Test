@@ -6,7 +6,9 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
-
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 class Shader
 {
@@ -120,9 +122,36 @@ public:
 		glUniform4f(glGetUniformLocation(ID, name.c_str()), value1, value2, value3, value4);
 	}
 
+	void setVec4(const std::string &name, float value1, float value2, float value3, float value4) const
+	{
+		glUniform4f(glGetUniformLocation(ID, name.c_str()), value1, value2, value3, value4);
+	}
+
+	void setVec4(const std::string &name, glm::vec4 value) const
+	{
+		glUniform4f(glGetUniformLocation(ID, name.c_str()), value.x, value.y, value.z, value.w);
+	}
+
 	void setVec3(const std::string &name, float value1, float value2, float value3) const
 	{
 		glUniform3f(glGetUniformLocation(ID, name.c_str()), value1, value2, value3);
 	}
+
+	void setVec3(const std::string &name, glm::vec3 value) const
+	{
+		glUniform3f(glGetUniformLocation(ID, name.c_str()), value.x, value.y, value.z);
+	}
+
+	void setVec2(const std::string &name, float value1, float value2) const
+	{
+		glUniform2f(glGetUniformLocation(ID, name.c_str()), value1, value2);
+	}
+
+	void setVec2(const std::string &name, glm::vec3 value) const
+	{
+		glUniform2f(glGetUniformLocation(ID, name.c_str()), value.x, value.y);
+	}
+
+
 };
 #endif

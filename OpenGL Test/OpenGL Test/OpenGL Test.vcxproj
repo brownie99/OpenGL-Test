@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -153,14 +153,20 @@
     <ClInclude Include="stb_image.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="fShader.fs" />
+    <None Include="fShader.fs">
+      <FileType>Document</FileType>
+    </None>
     <None Include="lampShader.fs" />
+    <None Include="lampVertexShader.vs" />
     <None Include="lightingShader.fs" />
     <None Include="vShader.vs" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="blue.jpg" />
     <Image Include="container.jpg" />
+    <Image Include="matrix.jpg" />
+    <Image Include="strongCrate.png" />
+    <Image Include="strongCrateSpecular.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

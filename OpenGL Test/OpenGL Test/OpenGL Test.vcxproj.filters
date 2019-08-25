@@ -34,16 +34,26 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="fShader.fs" />
     <None Include="vShader.vs" />
     <None Include="lightingShader.fs" />
     <None Include="lampShader.fs" />
+    <None Include="lampVertexShader.vs" />
+    <None Include="fShader.fs" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="container.jpg">
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="blue.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="strongCrate.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="strongCrateSpecular.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="matrix.jpg">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
