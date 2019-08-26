@@ -153,13 +153,13 @@
     <ClInclude Include="stb_image.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="fShader.fs">
+    <None Include="fShader.frag">
       <FileType>Document</FileType>
     </None>
-    <None Include="lampShader.fs" />
-    <None Include="lampVertexShader.vs" />
-    <None Include="lightingShader.fs" />
-    <None Include="vShader.vs" />
+    <None Include="lampShader.frag" />
+    <None Include="lampVertexShader.vert" />
+    <None Include="lightingShader.frag" />
+    <None Include="vShader.vert" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="blue.jpg" />

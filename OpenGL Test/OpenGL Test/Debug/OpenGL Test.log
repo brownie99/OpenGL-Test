@@ -1,10 +1,12 @@
 ﻿  Source.cpp
-g:\github\opengl-test\opengl test\opengl test\source.cpp(188): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-g:\github\opengl-test\opengl test\opengl test\source.cpp(334): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-g:\github\opengl-test\opengl test\opengl test\source.cpp(335): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-g:\github\opengl-test\opengl test\opengl test\source.cpp(338): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-g:\github\opengl-test\opengl test\opengl test\source.cpp(339): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-g:\github\opengl-test\opengl test\opengl test\source.cpp(340): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-g:\github\opengl-test\opengl test\opengl test\source.cpp(341): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-g:\github\opengl-test\opengl test\opengl test\source.cpp(349): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+g:\github\opengl-test\opengl test\opengl test\source.cpp(199): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+g:\github\opengl-test\opengl test\opengl test\source.cpp(266): warning C4305: 'argument': truncation from 'double' to 'float'
+g:\github\opengl-test\opengl test\opengl test\source.cpp(267): warning C4305: 'argument': truncation from 'double' to 'float'
+g:\github\opengl-test\opengl test\opengl test\source.cpp(384): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+g:\github\opengl-test\opengl test\opengl test\source.cpp(385): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+g:\github\opengl-test\opengl test\opengl test\source.cpp(388): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+g:\github\opengl-test\opengl test\opengl test\source.cpp(389): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+g:\github\opengl-test\opengl test\opengl test\source.cpp(390): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+g:\github\opengl-test\opengl test\opengl test\source.cpp(391): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+g:\github\opengl-test\opengl test\opengl test\source.cpp(399): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
   OpenGL Test.vcxproj -> G:\GitHub\OpenGL-Test\OpenGL Test\Debug\OpenGL Test.exe

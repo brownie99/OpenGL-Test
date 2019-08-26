@@ -34,11 +34,11 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="vShader.vs" />
-    <None Include="lightingShader.fs" />
-    <None Include="lampShader.fs" />
-    <None Include="lampVertexShader.vs" />
-    <None Include="fShader.fs" />
+    <None Include="vShader.vert" />
+    <None Include="fShader.frag" />
+    <None Include="lampShader.frag" />
+    <None Include="lampVertexShader.vert" />
+    <None Include="lightingShader.frag" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="container.jpg">
