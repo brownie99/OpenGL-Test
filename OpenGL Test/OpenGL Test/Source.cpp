@@ -1,9 +1,7 @@
 #define _USE_MATH_DEFINES
 #define STB_IMAGE_IMPLEMENTATION
-#include <iostream>
 #include <include/glad/glad.h>
 #include <glfw-3.3.bin.WIN32/include/GLFW/glfw3.h>
-#include <stb_image.h>
 #include <cstdlib>
 #include <math.h>
 #include <glm/glm.hpp>
@@ -12,16 +10,21 @@
 #include <cmath>
 #include <Shader.h>
 #include <Camera.h>
+#include <mesh.h>
+#include <model.h>
+#include <iostream>
+
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow *window);
+void centerWindow(GLFWwindow *window, GLFWmonitor *monitor);
 unsigned int loadTexture(const char *path);
 
 
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
+const unsigned int SCR_WIDTH = 1600;
+const unsigned int SCR_HEIGHT = 1200;
 
 
 float mixer = 0.5f;
@@ -46,7 +49,6 @@ float pitch = 0.0f;
 bool torch = false;
 
 
-
 int main()
 {
 	float r;
@@ -59,7 +61,7 @@ int main()
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	//glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
-	GLFWwindow* window = glfwCreateWindow(800, 600, "LearnOpenGL", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
 	if (window == NULL)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
@@ -67,13 +69,14 @@ int main()
 		return -1;
 	}
 	glfwMakeContextCurrent(window);
+	centerWindow(window, glfwGetPrimaryMonitor());
 
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
 		std::cout << "Failed to initialize GLAD" << std::endl;
 		return -1;
 	}
-	glViewport(0, 0, 800, 600);
+	glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
 
 	
 	glfwSetCursorPosCallback(window, mouse_callback);
@@ -160,7 +163,8 @@ int main()
 	unsigned int strongCrate = loadTexture("strongCrate.png");
 	unsigned int strongCrateSpecular = loadTexture("strongCrateSpecular.png");
 	unsigned int emissionMap = loadTexture("matrix.jpg");
-
+	
+	Model nanoSuit("Assets/nanosuit/nanosuit.obj");
 
 	unsigned int VBOs[2], VAOs[1];
 	glGenVertexArrays(1, VAOs);
@@ -194,8 +198,8 @@ int main()
 	while (!glfwWindowShouldClose(window))
 	{
 		r = 0.0f;
-		g = 0.1f;
-		b = 0.1f;
+		g = 0.2f;
+		b = 0.2f;
 		float currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
@@ -218,8 +222,8 @@ int main()
 		lightingShader.setInt("material.diffuse", 0);
 		lightingShader.setInt("material.specular", 1);
 
-		lightingShader.setVec3("dirLight.ambient", 0.05f, 0.05f, 0.05f);
-		lightingShader.setVec3("dirLight.diffuse", 0.5f, 0.5f, 0.5f); // darken the light a bit to fit the scene
+		lightingShader.setVec3("dirLight.ambient", 0.2f, 0.2f, 0.2f);
+		lightingShader.setVec3("dirLight.diffuse", 0.4f, 0.4f, 0.4f); // darken the light a bit to fit the scene
 		lightingShader.setVec3("dirLight.specular", 1.0f, 1.0f, 1.0f);
 		lightingShader.setVec3("dirLight.direction", -0.5f, -0.5f, -2.0f);
 
@@ -231,7 +235,7 @@ int main()
 		lightingShader.setFloat("pointLights[0].linear", 0.09f);
 		lightingShader.setFloat("pointLights[0].quadratic", 0.032f);
 		
-		lightingShader.setVec3("pointLights[1].position", pointLightPositions[1]);
+		/*lightingShader.setVec3("pointLights[1].position", pointLightPositions[1]);
 		lightingShader.setVec3("pointLights[1].ambient", 0.05f, 0.05f, 0.05f);
 		lightingShader.setVec3("pointLights[1].diffuse", 0.8f, 0.8f, 0.8f);
 		lightingShader.setVec3("pointLights[1].specular", 1.0f, 1.0f, 1.0f);
@@ -253,9 +257,9 @@ int main()
 		lightingShader.setVec3("pointLights[3].specular", 1.0f, 1.0f, 1.0f);
 		lightingShader.setFloat("pointLights[3].constant", 1.0f);
 		lightingShader.setFloat("pointLights[3].linear", 0.09f);
-		lightingShader.setFloat("pointLights[3].quadratic", 0.032f);
+		lightingShader.setFloat("pointLights[3].quadratic", 0.032f);*/
 
-		std::cout << torch << std::endl;
+		//std::cout << torch << std::endl;
 		lightingShader.setBool("torch", torch);
 		lightingShader.setVec3("spotLight.position", camera.Position);
 		lightingShader.setVec3("spotLight.direction", camera.Front);
@@ -300,7 +304,13 @@ int main()
 
 		
 		
-		glBindVertexArray(VAOs[0]);
+		/*glBindVertexArray(VAOs[0]);
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, pointLightPositions[0]);
+		model = glm::scale(model, glm::vec3(8.0f));
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		glDrawArrays(GL_TRIANGLES, 0, 36);*/
+
 		for (unsigned int i = 0; i < 9; i++)
 		{
 			glm::mat4 model = glm::mat4(1.0f);
@@ -315,6 +325,15 @@ int main()
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
 
+		/*model = glm::mat4(1.0f);
+		model = glm::translate(model, pointLightPositions[0]);
+		model = glm::rotate(model, (float)glfwGetTime() *  glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::translate(model,glm::vec3(0.3f,-0.2f,2.1f));
+		model = glm::rotate(model, (float)glfwGetTime() * glm::radians(1200.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.1f));
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		nanoSuit.Draw(lightingShader);*/
+
 		
 
 		lampShader.use();
@@ -327,7 +346,7 @@ int main()
 		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
 		glBindVertexArray(lightVAO);
-		for (unsigned int i = 0; i < 4; i++)
+		for (unsigned int i = 0; i < 1; i++)
 		{
 			model = glm::mat4(1.0f);
 			model = glm::translate(model, pointLightPositions[i]);
@@ -442,4 +461,23 @@ unsigned int loadTexture(char const * path)
 	return textureID;
 }
 
+void centerWindow(GLFWwindow *window, GLFWmonitor *monitor)
+{
+	if (!monitor)
+		return;
+
+	const GLFWvidmode *mode = glfwGetVideoMode(monitor);
+	if (!mode)
+		return;
+
+	int monitorX, monitorY;
+	glfwGetMonitorPos(monitor, &monitorX, &monitorY);
+
+	int windowWidth, windowHeight;
+	glfwGetWindowSize(window, &windowWidth, &windowHeight);
+
+	glfwSetWindowPos(window,
+		monitorX + (mode->width - windowWidth) / 2,
+		monitorY + (mode->height - windowHeight) / 2);
+}
 

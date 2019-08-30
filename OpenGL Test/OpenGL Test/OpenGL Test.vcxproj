@@ -71,8 +71,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(ProjectDir)\glfw-3.3.bin.WIN32\include;$(IncludePath);$(ProjectDir);$(ProjectDir)/include;$(ProjectDir)\glfw-3.3.bin.WIN32\lib-vc2017;G:\GitHub\OpenGL-Test\OpenGL Test\OpenGL Test\include\glad</IncludePath>
-    <LibraryPath>$(ProjectDir)\glfw-3.3.bin.WIN32\lib-vc2017;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)\glfw-3.3.bin.WIN32\include;$(IncludePath);$(ProjectDir);$(ProjectDir)/include;$(ProjectDir)\glfw-3.3.bin.WIN32\lib-vc2017;$(ProjectDir)\include\glad;$(ProjectDir)\include\assimp</IncludePath>
+    <LibraryPath>$(ProjectDir)\Assimp;$(ProjectDir)\glfw-3.3.bin.WIN32\lib-vc2017;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>D:\GLAD\include;$(ProjectDir);D:\glfw-3.2.1.bin.WIN32\include\GLFW;D:\GLAD\include\glad;D:\glfw-3.2.1.bin.WIN32\lib-vc2015;$(IncludePath)</IncludePath>
@@ -93,8 +93,8 @@
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>glfw3.lib;%(AdditionalDependencies);/NODEFAULTLIB:MSVCRT</AdditionalDependencies>
-      <AdditionalLibraryDirectories>D:\glfw-3.2.1.bin.WIN32\lib-vc2015;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;assimp-vc140-mt.lib;%(AdditionalDependencies);/NODEFAULTLIB:MSVCRT</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)\Assimp;D:\glfw-3.2.1.bin.WIN32\lib-vc2015;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -145,6 +145,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="model.h" />
+    <ClInclude Include="mesh.h" />
     <ClInclude Include="Shader.h">
       <DeploymentContent>true</DeploymentContent>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
@@ -159,6 +161,8 @@
     <None Include="lampShader.frag" />
     <None Include="lampVertexShader.vert" />
     <None Include="lightingShader.frag" />
+    <None Include="modelFragShader.frag" />
+    <None Include="modelVertShader.vert" />
     <None Include="vShader.vert" />
   </ItemGroup>
   <ItemGroup>

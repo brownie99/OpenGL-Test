@@ -31,7 +31,7 @@ struct PointLight {
     vec3 diffuse;
     vec3 specular;
 };
-#define NR_POINT_LIGHTS 4
+#define NR_POINT_LIGHTS 1
 uniform PointLight pointLights[NR_POINT_LIGHTS];
 //
 struct SpotLight {
@@ -77,6 +77,7 @@ void main()
     FragColor = vec4(result, 1.0);
     //FragColor.rgb = norm;
     //FragColor.a = 1.0f;
+	//FragColor = vec4(vec3(gl_FragCoord.z), 1.0);
 }
 
 

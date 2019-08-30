@@ -32,6 +32,12 @@
     <ClInclude Include="Camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="mesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="model.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="vShader.vert" />
@@ -39,6 +45,8 @@
     <None Include="lampShader.frag" />
     <None Include="lampVertexShader.vert" />
     <None Include="lightingShader.frag" />
+    <None Include="modelVertShader.vert" />
+    <None Include="modelFragShader.frag" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="container.jpg">
