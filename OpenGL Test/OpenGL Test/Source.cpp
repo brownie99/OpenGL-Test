@@ -154,8 +154,30 @@ int main()
 		glm::vec3(0.0f,  0.0f, -3.0f)
 	};
 
+
+	float vegetationVerts[] = {
+		0.0f,  0.5f,  0.0f,  0.0f,  0.0f,
+		0.0f, -0.5f,  0.0f,  0.0f,  1.0f,
+		1.0f, -0.5f,  0.0f,  1.0f,  1.0f,
+
+		0.0f,  0.5f,  0.0f,  0.0f,  0.0f,
+		1.0f, -0.5f,  0.0f,  1.0f,  1.0f,
+		1.0f,  0.5f,  0.0f,  1.0f,  0.0f
+	};
+
+	vector<glm::vec3> vegetation
+	{
+		glm::vec3(-1.5f, 0.0f, -0.48f),
+		glm::vec3(1.5f, 0.0f, 0.51f),
+		glm::vec3(0.0f, 0.0f, 0.7f),
+		glm::vec3(-0.3f, 0.0f, -2.3f),
+		glm::vec3(0.5f, 0.0f, -0.6f)
+	};
+
+
 	std::cout << "Making Shader" << std::endl;
-	Shader ourShader("vShader.vert", "fShader.frag");
+	//Shader ourShader("vShader.vert", "fShader.frag");
+	Shader ourShader("flat.vert", "flat.frag");
 	Shader lightingShader("vShader.vert", "lightingShader.frag");
 	Shader lampShader("vShader.vert", "lampShader.frag");
 
@@ -163,6 +185,7 @@ int main()
 	unsigned int strongCrate = loadTexture("strongCrate.png");
 	unsigned int strongCrateSpecular = loadTexture("strongCrateSpecular.png");
 	unsigned int emissionMap = loadTexture("matrix.jpg");
+	unsigned int grass = loadTexture("grass.png");
 	
 	Model nanoSuit("Assets/nanosuit/nanosuit.obj");
 
@@ -186,10 +209,22 @@ int main()
 	glGenVertexArrays(1, &lightVAO);
 	glBindVertexArray(lightVAO);
 	// we only need to bind to the VBO, the container's VBO's data already contains the correct data.
-	glBindBuffer(GL_ARRAY_BUFFER, VBOs[1]);
+	glBindBuffer(GL_ARRAY_BUFFER, VBOs[0]);
 	// set the vertex attributes (only position data for our lamp)
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
+
+
+	unsigned int vegetationVAO, vegetationVBO;
+	glGenVertexArrays(1, &vegetationVAO);
+	glGenBuffers(1, &vegetationVBO);
+	glBindVertexArray(vegetationVAO);
+	glBindBuffer(GL_ARRAY_BUFFER,vegetationVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vegetationVerts), vegetationVerts, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
 
 	glEnable(GL_DEPTH_TEST);
 
@@ -235,7 +270,7 @@ int main()
 		lightingShader.setFloat("pointLights[0].linear", 0.09f);
 		lightingShader.setFloat("pointLights[0].quadratic", 0.032f);
 		
-		/*lightingShader.setVec3("pointLights[1].position", pointLightPositions[1]);
+		lightingShader.setVec3("pointLights[1].position", pointLightPositions[1]);
 		lightingShader.setVec3("pointLights[1].ambient", 0.05f, 0.05f, 0.05f);
 		lightingShader.setVec3("pointLights[1].diffuse", 0.8f, 0.8f, 0.8f);
 		lightingShader.setVec3("pointLights[1].specular", 1.0f, 1.0f, 1.0f);
@@ -257,7 +292,7 @@ int main()
 		lightingShader.setVec3("pointLights[3].specular", 1.0f, 1.0f, 1.0f);
 		lightingShader.setFloat("pointLights[3].constant", 1.0f);
 		lightingShader.setFloat("pointLights[3].linear", 0.09f);
-		lightingShader.setFloat("pointLights[3].quadratic", 0.032f);*/
+		lightingShader.setFloat("pointLights[3].quadratic", 0.032f);
 
 		//std::cout << torch << std::endl;
 		lightingShader.setBool("torch", torch);
@@ -285,6 +320,10 @@ int main()
 		glActiveTexture(GL_TEXTURE2);
 		glBindTexture(GL_TEXTURE_2D, emissionMap);
 
+		glActiveTexture(GL_TEXTURE3);
+		glBindTexture(GL_TEXTURE_2D, grass);
+
+
 		glm::mat4 model = glm::mat4(1.0f);
 		//model = glm::rotate(model, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
 		glm::ortho(0.0f, 800.0f, 0.0f, 600.0f, 0.1f, 100.0f);
@@ -304,8 +343,8 @@ int main()
 
 		
 		
-		/*glBindVertexArray(VAOs[0]);
-		model = glm::mat4(1.0f);
+		glBindVertexArray(VAOs[0]);
+		/*model = glm::mat4(1.0f);
 		model = glm::translate(model, pointLightPositions[0]);
 		model = glm::scale(model, glm::vec3(8.0f));
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
@@ -325,16 +364,34 @@ int main()
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
 
-		/*model = glm::mat4(1.0f);
+		model = glm::mat4(1.0f);
 		model = glm::translate(model, pointLightPositions[0]);
 		model = glm::rotate(model, (float)glfwGetTime() *  glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		model = glm::translate(model,glm::vec3(0.3f,-0.2f,2.1f));
 		model = glm::rotate(model, (float)glfwGetTime() * glm::radians(1200.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(0.1f));
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		nanoSuit.Draw(lightingShader);*/
+		nanoSuit.Draw(lightingShader);
 
-		
+
+		ourShader.use();
+		modelLoc = glGetUniformLocation(ourShader.ID, "model");
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		viewLoc = glGetUniformLocation(ourShader.ID, "view");
+		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+		projectionLoc = glGetUniformLocation(ourShader.ID, "projection");
+		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+		glBindVertexArray(vegetationVAO);
+		//lightingShader.setInt("material.diffuse", 3);
+		//lightingShader.setInt("material.diffuse", 3);
+		ourShader.setInt("texture1", 3);
+		for (unsigned int i = 0; i < vegetation.size(); i++)
+		{
+			model = glm::mat4(1.0f);
+			model = glm::translate(model, vegetation[i]);
+			ourShader.setMat4("model", model);
+			glDrawArrays(GL_TRIANGLES, 0, 6);
+		}
 
 		lampShader.use();
 		lampShader.setVec3("lampColor", r1, g1, b1);
@@ -346,7 +403,7 @@ int main()
 		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
 		glBindVertexArray(lightVAO);
-		for (unsigned int i = 0; i < 1; i++)
+		for (unsigned int i = 0; i < 4; i++)
 		{
 			model = glm::mat4(1.0f);
 			model = glm::translate(model, pointLightPositions[i]);
@@ -445,8 +502,8 @@ unsigned int loadTexture(char const * path)
 		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
 		glGenerateMipmap(GL_TEXTURE_2D);
 
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, format == GL_RGBA ? GL_CLAMP_TO_EDGE : GL_REPEAT); // for this tutorial: use GL_CLAMP_TO_EDGE to prevent semi-transparent borders. Due to interpolation it takes texels from next repeat 
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, format == GL_RGBA ? GL_CLAMP_TO_EDGE : GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 

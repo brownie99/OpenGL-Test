@@ -10,5 +10,5 @@ uniform vec3 lightColor;
 
 void main()
 {
-FragColor = mix(texture(texture1, TexCoord), texture(texture2, TexCoord), mixer);
+FragColor = texture(texture1, TexCoord);
 }
