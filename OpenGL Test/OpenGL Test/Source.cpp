@@ -47,6 +47,7 @@ float yaw = -90.0f;
 float pitch = 0.0f;
 
 bool torch = false;
+bool weightedGrey = false;
 
 
 int main()
@@ -174,12 +175,24 @@ int main()
 		glm::vec3(0.5f, 0.0f, -0.6f)
 	};
 
+	float quadVertices[] = {
+		// positions   // texCoords
+		-1.0f,  1.0f,  0.0f, 1.0f,
+		-1.0f, -1.0f,  0.0f, 0.0f,
+		 1.0f, -1.0f,  1.0f, 0.0f,
+
+		-1.0f,  1.0f,  0.0f, 1.0f,
+		 1.0f, -1.0f,  1.0f, 0.0f,
+		 1.0f,  1.0f,  1.0f, 1.0f
+	};
+
 
 	std::cout << "Making Shader" << std::endl;
 	//Shader ourShader("vShader.vert", "fShader.frag");
 	Shader ourShader("flat.vert", "flat.frag");
 	Shader lightingShader("vShader.vert", "lightingShader.frag");
 	Shader lampShader("vShader.vert", "lampShader.frag");
+	Shader quadShader("quad.vert", "quad.frag");
 
 
 	unsigned int strongCrate = loadTexture("strongCrate.png");
@@ -226,17 +239,59 @@ int main()
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
 
+	unsigned int screenQuadVAO, sceenQuadVBO;
+	glGenVertexArrays(1, &screenQuadVAO);
+	glGenBuffers(1, &sceenQuadVBO);
+	glBindVertexArray(screenQuadVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, sceenQuadVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
 
-	unsigned int fbo;
-	glGenFramebuffers(1, &fbo);
-	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+
+	
+
+
+	unsigned int framebuffer;
+	glGenFramebuffers(1, &framebuffer);
+	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_CULL_FACE);
 	
+	// generate texture
+	unsigned int texColorBuffer;
+	glGenTextures(1, &texColorBuffer);
+	glBindTexture(GL_TEXTURE_2D, texColorBuffer);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glBindTexture(GL_TEXTURE_2D, 0);
 
+	// attach it to currently bound framebuffer object
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texColorBuffer, 0);
+
+	unsigned int rbo;
+	glGenRenderbuffers(1, &rbo);
+	glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, SCR_WIDTH, SCR_HEIGHT);
+	glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	/*glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glDeleteFramebuffers(1, &fbo);*/
+
+	quadShader.use();
+	quadShader.setInt("screenTexture", 0);
 
 	
 	while (!glfwWindowShouldClose(window))
@@ -250,7 +305,12 @@ int main()
 
 		processInput(window);
 
-
+		glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // we're not using the stencil buffer now
+		glEnable(GL_DEPTH_TEST);
+		float blurchanger = 1.0f;
+		blurchanger = sin((glfwGetTime()/3));
 		float r1 = 1.0f;
 		float g1 = 1.0f;
 		float b1 = 1.0f;
@@ -316,8 +376,7 @@ int main()
 		lightingShader.setFloat("spotLight.cutOff", glm::cos(glm::radians(8.5f)));
 		lightingShader.setFloat("spotLight.outerCutOff", glm::cos(glm::radians(20.0f)));
 
-		glClearColor(r, g, b, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		
 
 		// bind diffuse map
 		glActiveTexture(GL_TEXTURE0);
@@ -429,7 +488,19 @@ int main()
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
 
-		
+		// now bind back to default framebuffer and draw a quad plane with the attached framebuffer color texture
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glDisable(GL_DEPTH_TEST); // disable depth test so screen-space quad isn't discarded due to depth test.
+		// clear all relevant buffers
+		glClearColor(1.0f, 1.0f, 1.0f, 1.0f); // set clear color to white (not really necessery actually, since we won't be able to see behind the quad anyways)
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		quadShader.use();
+		quadShader.setBool("weighted", weightedGrey);
+		quadShader.setFloat("changer", blurchanger);
+		glBindVertexArray(screenQuadVAO);
+		glBindTexture(GL_TEXTURE_2D, texColorBuffer);	// use the color attachment texture as the texture of the quad plane
+		glDrawArrays(GL_TRIANGLES, 0, 6);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -496,6 +567,8 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 {
 	if (key == GLFW_KEY_T && action == GLFW_PRESS)
 		torch = !torch;
+	if (key == GLFW_KEY_G && action == GLFW_PRESS)
+		weightedGrey = !weightedGrey;
 }
 
 unsigned int loadTexture(char const * path)

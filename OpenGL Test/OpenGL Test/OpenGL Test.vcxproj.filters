@@ -47,6 +47,8 @@
     <None Include="lightingShader.frag" />
     <None Include="modelVertShader.vert" />
     <None Include="modelFragShader.frag" />
+    <None Include="quad.vert" />
+    <None Include="quad.frag" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="container.jpg">

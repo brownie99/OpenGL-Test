@@ -163,6 +163,8 @@
     <None Include="lightingShader.frag" />
     <None Include="modelFragShader.frag" />
     <None Include="modelVertShader.vert" />
+    <None Include="quad.frag" />
+    <None Include="quad.vert" />
     <None Include="vShader.vert" />
   </ItemGroup>
   <ItemGroup>
