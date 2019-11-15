@@ -20,6 +20,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow *window);
 void centerWindow(GLFWwindow *window, GLFWmonitor *monitor);
+unsigned int loadCubemap(vector<std::string> faces);
 unsigned int loadTexture(const char *path);
 
 
@@ -89,6 +90,9 @@ int main()
 
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
+	glClearColor(0.0f, 0.4f, 0.4f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // we're not using the stencil buffer now
+	glfwSwapBuffers(window);
 	float vertices[] = {
 		// positions          // normals           // texture coords
 		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
@@ -186,6 +190,51 @@ int main()
 		 1.0f,  1.0f,  1.0f, 1.0f
 	};
 
+	float skyboxVertices[] = {
+		// positions          
+		-1.0f,  1.0f, -1.0f,
+		-1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+		 1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+
+		-1.0f, -1.0f,  1.0f,
+		-1.0f, -1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f,  1.0f,
+		-1.0f, -1.0f,  1.0f,
+
+		 1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+
+		-1.0f, -1.0f,  1.0f,
+		-1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f, -1.0f,  1.0f,
+		-1.0f, -1.0f,  1.0f,
+
+		-1.0f,  1.0f, -1.0f,
+		 1.0f,  1.0f, -1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		-1.0f,  1.0f,  1.0f,
+		-1.0f,  1.0f, -1.0f,
+
+		-1.0f, -1.0f, -1.0f,
+		-1.0f, -1.0f,  1.0f,
+		 1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+		-1.0f, -1.0f,  1.0f,
+		 1.0f, -1.0f,  1.0f
+	};
+
 
 	std::cout << "Making Shader" << std::endl;
 	//Shader ourShader("vShader.vert", "fShader.frag");
@@ -193,13 +242,28 @@ int main()
 	Shader lightingShader("vShader.vert", "lightingShader.frag");
 	Shader lampShader("vShader.vert", "lampShader.frag");
 	Shader quadShader("quad.vert", "quad.frag");
+	Shader cubeMapShader("cubeMap.vert", "cubeMap.frag");
+	Shader reflectShader("reflect.vert", "reflect.frag");
 
 
 	unsigned int strongCrate = loadTexture("strongCrate.png");
 	unsigned int strongCrateSpecular = loadTexture("strongCrateSpecular.png");
 	unsigned int emissionMap = loadTexture("matrix.jpg");
 	unsigned int grass = loadTexture("window.png");
+
+	vector<std::string> faces
+	{
+		"right.jpg",
+			"left.jpg",
+			"top.jpg",
+			"bottom.jpg",
+			"front.jpg",
+			"back.jpg"
+	};
+	unsigned int cubemapTexture = loadCubemap(faces);
 	
+	
+
 	Model nanoSuit("Assets/nanosuit/nanosuit.obj");
 
 	unsigned int VBOs[2], VAOs[1];
@@ -227,6 +291,16 @@ int main()
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 
+	unsigned int cubeMapVAO, cubeMapVBO;
+	glGenVertexArrays(1, &cubeMapVAO);
+	glGenBuffers(1, &cubeMapVBO);
+	glBindVertexArray(cubeMapVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, cubeMapVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), skyboxVertices, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	
+
 
 	unsigned int vegetationVAO, vegetationVBO;
 	glGenVertexArrays(1, &vegetationVAO);
@@ -249,9 +323,6 @@ int main()
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
-
-
-	
 
 
 	unsigned int framebuffer;
@@ -319,6 +390,7 @@ int main()
 		//b1 = (sin(glfwGetTime() + glm::radians(120.0f)) / 4) + 0.75;;
 
 		//std::cout << r1 << ", " << g1 << ", " << b1 << std::endl;
+
 		lightingShader.use();
 		lightingShader.setVec3("viewPos", camera.Position);
 
@@ -391,7 +463,10 @@ int main()
 		glActiveTexture(GL_TEXTURE3);
 		glBindTexture(GL_TEXTURE_2D, grass);
 
+		glActiveTexture(GL_TEXTURE4);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
 
+		
 		glm::mat4 model = glm::mat4(1.0f);
 		//model = glm::rotate(model, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
 		glm::ortho(0.0f, 800.0f, 0.0f, 600.0f, 0.1f, 100.0f);
@@ -401,16 +476,42 @@ int main()
 		projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 
 		
+		int modelLoc;
+		int viewLoc;
+		int projectionLoc;
 
-		int modelLoc = glGetUniformLocation(lightingShader.ID, "model");
+		lampShader.use();
+		lampShader.setVec3("lampColor", r1, g1, b1);
+		modelLoc = glGetUniformLocation(lampShader.ID, "model");
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		int viewLoc = glGetUniformLocation(lightingShader.ID, "view");
+		viewLoc = glGetUniformLocation(lampShader.ID, "view");
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-		int projectionLoc = glGetUniformLocation(lightingShader.ID, "projection");
+		projectionLoc = glGetUniformLocation(lampShader.ID, "projection");
 		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
+		glBindVertexArray(lightVAO);
+		for (unsigned int i = 0; i < 4; i++)
+		{
+			model = glm::mat4(1.0f);
+			model = glm::translate(model, pointLightPositions[i]);
+			model = glm::scale(model, glm::vec3(0.2f));
+			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
 		
-		
+		//lightingShader.use();
+		reflectShader.use();
+		reflectShader.setInt("skybox", 4);
+		reflectShader.setVec3("cameraPos",camera.Position);
+		Shader *currentShader = &reflectShader;
+		view = camera.GetViewMatrix();
+		modelLoc = glGetUniformLocation(reflectShader.ID, "model");
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		viewLoc = glGetUniformLocation(reflectShader.ID, "view");
+		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+		projectionLoc = glGetUniformLocation(reflectShader.ID, "projection");
+		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+
 		glBindVertexArray(VAOs[0]);
 		/*model = glm::mat4(1.0f);
 		model = glm::translate(model, pointLightPositions[0]);
@@ -423,7 +524,6 @@ int main()
 			glm::mat4 model = glm::mat4(1.0f);
 			model = glm::translate(model, cubePositions[i]);
 			//model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-
 			float angle = 20.0f * i;
 			//model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
 			//model = glm::rotate(model, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
@@ -432,13 +532,30 @@ int main()
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
 
-		model = glm::mat4(1.0f);
-		model = glm::translate(model, pointLightPositions[0]);
-		model = glm::rotate(model, (float)glfwGetTime() *  glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::translate(model,glm::vec3(0.3f,-0.2f,2.1f));
-		model = glm::rotate(model, (float)glfwGetTime() * glm::radians(1200.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(0.1f));
+		lightingShader.use();
+		modelLoc = glGetUniformLocation(lightingShader.ID, "model");
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		viewLoc = glGetUniformLocation(lightingShader.ID, "view");
+		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+		projectionLoc = glGetUniformLocation(lightingShader.ID, "projection");
+		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+
+
+
+		model = glm::rotate(model, glm::radians(-camera.Yaw), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		
+		model = glm::translate(model, glm::vec3(model[0,3],model[1,3],model[3,3])-camera.Position);
+		model = glm::translate(model, glm::vec3(0,-1.7,0.2));
+		//model = glm::translate(model, pointLightPositions[0]);
+		//model = glm::rotate(model, (float)glfwGetTime() *  glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		//model = glm::translate(model,glm::vec3(0.3f,-0.2f,2.1f));
+		//model = glm::rotate(model, (float)glfwGetTime() * glm::radians(1200.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		//model = glm::rotate(model, (float)glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		
+		model = glm::scale(model, glm::vec3(0.5f));
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		
 		nanoSuit.Draw(lightingShader);
 
 		glDisable(GL_CULL_FACE);
@@ -469,24 +586,20 @@ int main()
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 		}
 
-		lampShader.use();
-		lampShader.setVec3("lampColor", r1, g1, b1);
-		modelLoc = glGetUniformLocation(lampShader.ID, "model");
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		viewLoc = glGetUniformLocation(lampShader.ID, "view");
-		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-		projectionLoc = glGetUniformLocation(lampShader.ID, "projection");
-		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+		
 
-		glBindVertexArray(lightVAO);
-		for (unsigned int i = 0; i < 4; i++)
-		{
-			model = glm::mat4(1.0f);
-			model = glm::translate(model, pointLightPositions[i]);
-			model = glm::scale(model, glm::vec3(0.2f));
-			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-			glDrawArrays(GL_TRIANGLES, 0, 36);
-		}
+		view = glm::mat4(glm::mat3(camera.GetViewMatrix()));
+		glDepthFunc(GL_LEQUAL);
+		cubeMapShader.use();
+		cubeMapShader.setInt("skybox", 4);
+		viewLoc = glGetUniformLocation(cubeMapShader.ID, "view");
+		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+		projectionLoc = glGetUniformLocation(cubeMapShader.ID, "projection");
+		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+		glBindVertexArray(cubeMapVAO);
+
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+		glDepthFunc(GL_LESS);
 
 		// now bind back to default framebuffer and draw a quad plane with the attached framebuffer color texture
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -604,6 +717,36 @@ unsigned int loadTexture(char const * path)
 		std::cout << "Texture failed to load at path: " << path << std::endl;
 		stbi_image_free(data);
 	}
+
+	return textureID;
+}
+
+unsigned int loadCubemap(vector<std::string> faces)
+{
+	unsigned int textureID;
+	glGenTextures(1, &textureID);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+
+	int width, height, nrChannels;
+	for (unsigned int i = 0; i < faces.size(); i++)
+	{
+		unsigned char *data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
+		if (data)
+		{
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+			stbi_image_free(data);
+		}
+		else
+		{
+			std::cout << "Cubemap texture failed to load at path: " << faces[i] << std::endl;
+			stbi_image_free(data);
+		}
+	}
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
 	return textureID;
 }
