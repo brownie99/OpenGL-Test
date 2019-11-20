@@ -49,6 +49,7 @@ float pitch = 0.0f;
 
 bool torch = false;
 bool weightedGrey = false;
+bool firstPerson = true;
 
 
 int main()
@@ -244,6 +245,7 @@ int main()
 	Shader quadShader("quad.vert", "quad.frag");
 	Shader cubeMapShader("cubeMap.vert", "cubeMap.frag");
 	Shader reflectShader("reflect.vert", "reflect.frag");
+	Shader refractShader("refract.vert", "refract.frag");
 
 
 	unsigned int strongCrate = loadTexture("strongCrate.png");
@@ -473,7 +475,7 @@ int main()
 		glm::mat4 projection = glm::mat4(1.0f);
 		glm::mat4 view;
 		view = camera.GetViewMatrix();
-		projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+		projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.01f, 100.0f);
 
 		
 		int modelLoc;
@@ -499,17 +501,20 @@ int main()
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
 		
+		
+
 		//lightingShader.use();
-		reflectShader.use();
-		reflectShader.setInt("skybox", 4);
-		reflectShader.setVec3("cameraPos",camera.Position);
-		Shader *currentShader = &reflectShader;
+		Shader *currentShader = &refractShader;
+		currentShader->use();
+		currentShader->setInt("skybox", 4);
+		currentShader->setVec3("cameraPos",camera.Position);
+		
 		view = camera.GetViewMatrix();
-		modelLoc = glGetUniformLocation(reflectShader.ID, "model");
+		modelLoc = glGetUniformLocation(currentShader->ID, "model");
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		viewLoc = glGetUniformLocation(reflectShader.ID, "view");
+		viewLoc = glGetUniformLocation(currentShader->ID, "view");
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-		projectionLoc = glGetUniformLocation(reflectShader.ID, "projection");
+		projectionLoc = glGetUniformLocation(currentShader->ID, "projection");
 		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
 		glBindVertexArray(VAOs[0]);
@@ -532,31 +537,58 @@ int main()
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
 
-		lightingShader.use();
-		modelLoc = glGetUniformLocation(lightingShader.ID, "model");
+		Shader* currentMShader = &lightingShader;
+		currentMShader->use();
+		modelLoc = glGetUniformLocation(currentMShader->ID, "model");
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		viewLoc = glGetUniformLocation(lightingShader.ID, "view");
+		viewLoc = glGetUniformLocation(currentMShader->ID, "view");
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-		projectionLoc = glGetUniformLocation(lightingShader.ID, "projection");
+		projectionLoc = glGetUniformLocation(currentMShader->ID, "projection");
 		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
-
-
-		model = glm::rotate(model, glm::radians(-camera.Yaw), glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		
-		model = glm::translate(model, glm::vec3(model[0,3],model[1,3],model[3,3])-camera.Position);
-		model = glm::translate(model, glm::vec3(0,-1.7,0.2));
+		model = glm::mat4(1.0f);
+		//std::cout << "x: " << camera.Position.x << ", y: " << camera.Position.y << ", z: " << camera.Position.z << std::endl;
+		
+		
 		//model = glm::translate(model, pointLightPositions[0]);
 		//model = glm::rotate(model, (float)glfwGetTime() *  glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		//model = glm::translate(model,glm::vec3(0.3f,-0.2f,2.1f));
 		//model = glm::rotate(model, (float)glfwGetTime() * glm::radians(1200.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		//model = glm::rotate(model, (float)glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		
-		model = glm::scale(model, glm::vec3(0.5f));
+		if (firstPerson)
+		{
+			model = glm::translate(model, camera.Position);
+			model = glm::rotate(model, glm::radians(-camera.Yaw), glm::vec3(0.0f, 1.0f, 0.0f));
+			model = glm::translate(model, glm::vec3(-0.14f, -1.55f, 0.0f));
+
+			model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+			model = glm::scale(model, glm::vec3(0.1f));
+		}
+		else
+		{
+			//model = glm::translate(model, camera.Position);
+			//camera.Position = camera.Position + glm::vec3(1.5f, -1.55f, 0.0f);
+			////model = glm::translate(model, glm::vec3(1.5f, -1.55f, 0.0f));
+			//model = glm::rotate(model, glm::radians(-camera.Yaw), glm::vec3(0.0f, 1.0f, 0.0f));
+			//
+
+			//model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+			//model = glm::scale(model, glm::vec3(0.1f));
+
+
+			/*model = glm::translate(model, camera.Position);
+			model = glm::rotate(model, glm::radians(-camera.Yaw), glm::vec3(0.0f, 1.0f, 0.0f));
+			model = glm::translate(model, glm::vec3(-0.14f, -1.55f, 0.0f));
+
+			model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+			model = glm::scale(model, glm::vec3(0.1f));*/
+		}
+		
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		
-		nanoSuit.Draw(lightingShader);
+		nanoSuit.Draw(*currentMShader);
 
 		glDisable(GL_CULL_FACE);
 		ourShader.use();
@@ -649,7 +681,6 @@ void processInput(GLFWwindow *window)
 	if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
 		camera.ProcessKeyboard(DOWN, deltaTime, speedMultiplier);
 	
-	
 }
 
 bool firstMouse = true;
@@ -682,6 +713,8 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 		torch = !torch;
 	if (key == GLFW_KEY_G && action == GLFW_PRESS)
 		weightedGrey = !weightedGrey;
+	if (key == GLFW_KEY_V && action == GLFW_PRESS)
+		firstPerson = !firstPerson;
 }
 
 unsigned int loadTexture(char const * path)

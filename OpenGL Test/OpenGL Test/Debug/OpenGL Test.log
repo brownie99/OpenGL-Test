@@ -1,57 +1,14 @@
 ﻿  Source.cpp
-c:\users\scurr\documents\github\opengl-test\opengl test\opengl test\mesh.h(69): warning C4244: 'argument': conversion from 'unsigned int' to 'float', possible loss of data
-c:\users\scurr\documents\github\opengl-test\opengl test\opengl test\source.cpp(373): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-c:\users\scurr\documents\github\opengl-test\opengl test\opengl test\source.cpp(384): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\scurr\documents\github\opengl-test\opengl test\opengl test\source.cpp(446): warning C4305: 'argument': truncation from 'double' to 'float'
-c:\users\scurr\documents\github\opengl-test\opengl test\opengl test\source.cpp(447): warning C4305: 'argument': truncation from 'double' to 'float'
-c:\users\scurr\documents\github\opengl-test\opengl test\opengl test\source.cpp(661): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\scurr\documents\github\opengl-test\opengl test\opengl test\source.cpp(662): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\scurr\documents\github\opengl-test\opengl test\opengl test\source.cpp(665): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-c:\users\scurr\documents\github\opengl-test\opengl test\opengl test\source.cpp(666): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-c:\users\scurr\documents\github\opengl-test\opengl test\opengl test\source.cpp(667): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\scurr\documents\github\opengl-test\opengl test\opengl test\source.cpp(668): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\scurr\documents\github\opengl-test\opengl test\opengl test\source.cpp(676): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-c:\users\scurr\documents\github\opengl-test\opengl test\opengl test\include\glm\detail\type_vec3.inl(54): error C2440: 'static_cast': cannot convert from 'X' to 'T'
-          with
-          [
-              X=glm::vec<4,float,0>
-          ]
-          and
-          [
-              T=float
-          ]
-  c:\users\scurr\documents\github\opengl-test\opengl test\opengl test\include\glm\detail\type_vec3.inl(54): note: No user-defined-conversion operator available that can perform this conversion, or the operator cannot be called
-  c:\users\scurr\documents\github\opengl-test\opengl test\opengl test\source.cpp(548): note: see reference to function template instantiation 'glm::vec<3,float,0>::vec<glm::vec<4,float,0>,glm::vec<4,float,0>,glm::vec<4,float,0>>(X,Y,Z)' being compiled
-          with
-          [
-              X=glm::vec<4,float,0>,
-              Y=glm::vec<4,float,0>,
-              Z=glm::vec<4,float,0>
-          ]
-  c:\users\scurr\documents\github\opengl-test\opengl test\opengl test\source.cpp(548): note: see reference to function template instantiation 'glm::vec<3,float,0>::vec<glm::vec<4,float,0>,glm::vec<4,float,0>,glm::vec<4,float,0>>(X,Y,Z)' being compiled
-          with
-          [
-              X=glm::vec<4,float,0>,
-              Y=glm::vec<4,float,0>,
-              Z=glm::vec<4,float,0>
-          ]
-c:\users\scurr\documents\github\opengl-test\opengl test\opengl test\include\glm\detail\type_vec3.inl(55): error C2440: 'static_cast': cannot convert from 'Y' to 'T'
-          with
-          [
-              Y=glm::vec<4,float,0>
-          ]
-          and
-          [
-              T=float
-          ]
-  c:\users\scurr\documents\github\opengl-test\opengl test\opengl test\include\glm\detail\type_vec3.inl(55): note: No user-defined-conversion operator available that can perform this conversion, or the operator cannot be called
-c:\users\scurr\documents\github\opengl-test\opengl test\opengl test\include\glm\detail\type_vec3.inl(56): error C2440: 'static_cast': cannot convert from 'Z' to 'T'
-          with
-          [
-              Z=glm::vec<4,float,0>
-          ]
-          and
-          [
-              T=float
-          ]
-  c:\users\scurr\documents\github\opengl-test\opengl test\opengl test\include\glm\detail\type_vec3.inl(56): note: No user-defined-conversion operator available that can perform this conversion, or the operator cannot be called
+c:\users\scurr\documents\github\opengl-test\opengl test\opengl test\mesh.h(72): warning C4244: 'argument': conversion from 'unsigned int' to 'float', possible loss of data
+c:\users\scurr\documents\github\opengl-test\opengl test\opengl test\source.cpp(375): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\scurr\documents\github\opengl-test\opengl test\opengl test\source.cpp(386): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\scurr\documents\github\opengl-test\opengl test\opengl test\source.cpp(448): warning C4305: 'argument': truncation from 'double' to 'float'
+c:\users\scurr\documents\github\opengl-test\opengl test\opengl test\source.cpp(449): warning C4305: 'argument': truncation from 'double' to 'float'
+c:\users\scurr\documents\github\opengl-test\opengl test\opengl test\source.cpp(692): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\scurr\documents\github\opengl-test\opengl test\opengl test\source.cpp(693): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\scurr\documents\github\opengl-test\opengl test\opengl test\source.cpp(696): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\scurr\documents\github\opengl-test\opengl test\opengl test\source.cpp(697): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\scurr\documents\github\opengl-test\opengl test\opengl test\source.cpp(698): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\scurr\documents\github\opengl-test\opengl test\opengl test\source.cpp(699): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\scurr\documents\github\opengl-test\opengl test\opengl test\source.cpp(707): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+  OpenGL Test.vcxproj -> C:\Users\scurr\Documents\GitHub\OpenGL-Test\OpenGL Test\Debug\OpenGL Test.exe
