@@ -7,7 +7,7 @@ uniform sampler2D screenTexture;
 uniform bool weighted;
 uniform float changer;
 
-float offset = 0/100.00 * changer;  
+float offset = 0.3/100.00 * changer;  
 
 void main()
 {

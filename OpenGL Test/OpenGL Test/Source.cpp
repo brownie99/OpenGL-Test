@@ -14,7 +14,7 @@
 #include <model.h>
 #include <iostream>
 
-
+//Initialise function prototypes
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
@@ -23,30 +23,31 @@ void centerWindow(GLFWwindow *window, GLFWmonitor *monitor);
 unsigned int loadCubemap(vector<std::string> faces);
 unsigned int loadTexture(const char *path);
 
+//Window resolution
+const unsigned int SCR_WIDTH = 2560;
+const unsigned int SCR_HEIGHT = 1440;
 
-const unsigned int SCR_WIDTH = 1600;
-const unsigned int SCR_HEIGHT = 1200;
-
-
-float mixer = 0.5f;
-float xScale = 1.0f;
-
+//Initialies camera varaibles
 glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+float fov = 45.0f;
 
+//Create new camera
 Camera camera;
 
-glm::vec3 lightPos(-0.0f, 0.0f, 1.0f);
-
+//Initialise frame time counters
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
-float fov = 45.0f;
+
+//Initialise mouse position
 float lastX = 400, lastY = 300;
 
+//Initialise character rotations
 float yaw = -90.0f;
 float pitch = 0.0f;
 
+//Initialise bools
 bool torch = false;
 bool weightedGrey = false;
 bool firstPerson = true;
@@ -54,17 +55,14 @@ bool firstPerson = true;
 
 int main()
 {
-	float r;
-	float g;
-	float b;
-
+	//Create new window
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	//glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
-	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "OpenGL", glfwGetPrimaryMonitor(), NULL);
 	if (window == NULL)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
@@ -94,6 +92,8 @@ int main()
 	glClearColor(0.0f, 0.4f, 0.4f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // we're not using the stencil buffer now
 	glfwSwapBuffers(window);
+
+	//Create array of triangles to draw
 	float vertices[] = {
 		// positions          // normals           // texture coords
 		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
@@ -139,7 +139,7 @@ int main()
 		-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 0.0f
 	};
 
-
+	//Positions of cubes
 	glm::vec3 cubePositions[] = {
 	  glm::vec3(0.0f,  0.0f,  0.0f),
 	  glm::vec3(2.0f,  5.0f, -15.0f),
@@ -153,6 +153,7 @@ int main()
 	  glm::vec3(-1.3f,  1.0f, -1.5f)
 	};
 
+	//Posistions of Lights
 	glm::vec3 pointLightPositions[] = {
 		glm::vec3(0.7f,  0.2f,  2.0f),
 		glm::vec3(2.3f, -3.3f, -4.0f),
@@ -160,7 +161,7 @@ int main()
 		glm::vec3(0.0f,  0.0f, -3.0f)
 	};
 
-
+	//Position of 2D vegitation object verticies
 	float vegetationVerts[] = {
 		0.0f,  0.5f,  0.0f,  0.0f,  0.0f,
 		0.0f, -0.5f,  0.0f,  0.0f,  1.0f,
@@ -171,6 +172,7 @@ int main()
 		1.0f,  0.5f,  0.0f,  1.0f,  0.0f
 	};
 
+	//Position of 2D transparency objects
 	vector<glm::vec3> vegetation
 	{
 		glm::vec3(-1.5f, 0.0f, -0.48f),
@@ -180,6 +182,8 @@ int main()
 		glm::vec3(0.5f, 0.0f, -0.6f)
 	};
 
+
+	//Verticies for quad over whole screen for postprocessing
 	float quadVertices[] = {
 		// positions   // texCoords
 		-1.0f,  1.0f,  0.0f, 1.0f,
@@ -191,6 +195,7 @@ int main()
 		 1.0f,  1.0f,  1.0f, 1.0f
 	};
 
+	//Vertices for skybox
 	float skyboxVertices[] = {
 		// positions          
 		-1.0f,  1.0f, -1.0f,
@@ -236,7 +241,7 @@ int main()
 		 1.0f, -1.0f,  1.0f
 	};
 
-
+	//initialise all shaders
 	std::cout << "Making Shader" << std::endl;
 	//Shader ourShader("vShader.vert", "fShader.frag");
 	Shader ourShader("flat.vert", "flat.frag");
@@ -247,27 +252,29 @@ int main()
 	Shader reflectShader("reflect.vert", "reflect.frag");
 	Shader refractShader("refract.vert", "refract.frag");
 
-
+	//initialse textures
 	unsigned int strongCrate = loadTexture("strongCrate.png");
 	unsigned int strongCrateSpecular = loadTexture("strongCrateSpecular.png");
 	unsigned int emissionMap = loadTexture("matrix.jpg");
 	unsigned int grass = loadTexture("window.png");
 
+	//initialise cubemap
 	vector<std::string> faces
 	{
 		"right.jpg",
-			"left.jpg",
-			"top.jpg",
-			"bottom.jpg",
-			"front.jpg",
-			"back.jpg"
+		"left.jpg",
+		"top.jpg",
+		"bottom.jpg",
+		"front.jpg",
+		"back.jpg"
 	};
 	unsigned int cubemapTexture = loadCubemap(faces);
 	
 	
-
+	//load playermodel
 	Model nanoSuit("Assets/nanosuit/nanosuit.obj");
 
+	//create all vertex buffer objects and vertex array objects for every shader
 	unsigned int VBOs[2], VAOs[1];
 	glGenVertexArrays(1, VAOs);
 	glGenBuffers(1, VBOs);
@@ -366,18 +373,17 @@ int main()
 	quadShader.use();
 	quadShader.setInt("screenTexture", 0);
 
-	
+	//Update window every frame
 	while (!glfwWindowShouldClose(window))
 	{
-		r = 0.0f;
-		g = 0.2f;
-		b = 0.2f;
 		float currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 
+		//get any inputs from mouse and keyboard
 		processInput(window);
 
+		//start rendering scene
 		glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // we're not using the stencil buffer now
@@ -393,6 +399,7 @@ int main()
 
 		//std::cout << r1 << ", " << g1 << ", " << b1 << std::endl;
 
+		//create all lights in scene
 		lightingShader.use();
 		lightingShader.setVec3("viewPos", camera.Position);
 
@@ -451,7 +458,7 @@ int main()
 		lightingShader.setFloat("spotLight.outerCutOff", glm::cos(glm::radians(20.0f)));
 
 		
-
+		//send textures to GPU
 		// bind diffuse map
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, strongCrate);
@@ -468,7 +475,7 @@ int main()
 		glActiveTexture(GL_TEXTURE4);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
 
-		
+		//set camera position and rotation
 		glm::mat4 model = glm::mat4(1.0f);
 		//model = glm::rotate(model, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
 		glm::ortho(0.0f, 800.0f, 0.0f, 600.0f, 0.1f, 100.0f);
@@ -477,7 +484,7 @@ int main()
 		view = camera.GetViewMatrix();
 		projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.01f, 100.0f);
 
-		
+		//draw lamps
 		int modelLoc;
 		int viewLoc;
 		int projectionLoc;
@@ -502,9 +509,10 @@ int main()
 		}
 		
 		
-
+		//set the shader to use for the basic abojects in the scene - currently either basic lighting, a refraction shader and a reflection shader
 		//lightingShader.use();
-		Shader *currentShader = &refractShader;
+		//Shader *currentShader = &refractShader;
+		Shader *currentShader = &lightingShader;
 		currentShader->use();
 		currentShader->setInt("skybox", 4);
 		currentShader->setVec3("cameraPos",camera.Position);
@@ -537,6 +545,7 @@ int main()
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
 
+		//draw playermodel
 		Shader* currentMShader = &lightingShader;
 		currentMShader->use();
 		modelLoc = glGetUniformLocation(currentMShader->ID, "model");
@@ -590,6 +599,8 @@ int main()
 		
 		nanoSuit.Draw(*currentMShader);
 
+
+		//draw transparency quads
 		glDisable(GL_CULL_FACE);
 		ourShader.use();
 		modelLoc = glGetUniformLocation(ourShader.ID, "model");
@@ -619,7 +630,7 @@ int main()
 		}
 
 		
-
+		//draw cubemap
 		view = glm::mat4(glm::mat3(camera.GetViewMatrix()));
 		glDepthFunc(GL_LEQUAL);
 		cubeMapShader.use();
@@ -654,13 +665,16 @@ int main()
 	return 0;
 }
 
+//function definitions
+
+//return screen
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);
 }
 
 
-
+//get keyboard inputs that need to be updated every frame
 void processInput(GLFWwindow *window)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -683,6 +697,7 @@ void processInput(GLFWwindow *window)
 	
 }
 
+//get mouse inputs
 bool firstMouse = true;
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos) 
@@ -702,11 +717,13 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 	camera.ProcessMouseMovement(xoffset, yoffset, true);
 }
 
+//check for scroll
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) 
 {
 	camera.ProcessMouseScroll(yoffset);
 }
 
+//get keyboard inputs that only need to be updated once on evry individual press (rather than constantly while held pressed)
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 	if (key == GLFW_KEY_T && action == GLFW_PRESS)
@@ -717,6 +734,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 		firstPerson = !firstPerson;
 }
 
+//load a texture into ram
 unsigned int loadTexture(char const * path)
 {
 	unsigned int textureID;
@@ -754,6 +772,7 @@ unsigned int loadTexture(char const * path)
 	return textureID;
 }
 
+//load a cubemap texture
 unsigned int loadCubemap(vector<std::string> faces)
 {
 	unsigned int textureID;
@@ -784,6 +803,7 @@ unsigned int loadCubemap(vector<std::string> faces)
 	return textureID;
 }
 
+//put window into the centre of the screen
 void centerWindow(GLFWwindow *window, GLFWmonitor *monitor)
 {
 	if (!monitor)
